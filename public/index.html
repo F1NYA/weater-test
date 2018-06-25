@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="utf-8">
+      <title>lab2</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous" type="text/css" />
+      <script type="text/javascript" src="http://www.chartjs.org/dist/master/Chart.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+  </head>
+  <div class="d-flex">
+    <canvas id="weather-chart"></canvas>
+  </div>
+    <div class="d-flex justify-content-around text-center">
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title">Kiev</h3>
+          <h4 class="card-subtitle" id="kiev-weather-description"></h3>
+          <p class="card-text" id="kiev-weather-text"></p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title">London</h3>
+          <h4 class="card-subtitle" id="london-weather-description"></h3>
+          <p class="card-text" id="london-weather-text"></p>
+        </div>
+      </div>
+    </div>
+    <script>
+      let socket = io();
+      let tempChart;
+      function newDate() {
+        return moment().format();
+      }
+      function addData(city, label, data) {
+        tempChart.data.labels.push(label);
+        tempChart.data.datasets[(city === 'kiev' ? 0 : 1)].data.push(data);
+        tempChart.update();
+      }
+      window.onclose = () => socket.disconnect()
+      window.onload = () => {
+        let ctx = document.getElementById('weather-chart');
+        tempChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: [],
+            datasets: [{
+              label: 'Kiev temprature',
+              data: [],
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+              ],
+              borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+              ],
+              borderWidth: 1
+            }, {
+              label: 'London temprature',
+              data: [],
+              backgroundColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+              ],
+              borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              xAxes: [{
+                display: true,
+                type: 'time',
+                time: {
+                  unit: 'second'
+                }
+              }],
+              yAxes: [{
+                display: true
+              }]
+            }
+          }
+        });
+      }
+      socket.on('weather', data => {
+        console.log(data);
+        if (!data) return;
+        if (data.kiev) {
+          const kiev = JSON.parse(data.kiev);
+          document.getElementById("kiev-weather-description").innerText = kiev.weather[0].description;
+          document.getElementById("kiev-weather-text").innerText = `Temrature: ${kiev.main.temp}\nPressure: ${kiev.main.pressure}`;
+          addData('kiev', new Date(), kiev.main.temp)
+        } else {
+          document.getElementById("kiev-weather-description").innerText = 'ERROR';
+          document.getElementById("kiev-weather-text").innerText = 'ERROR'
+        }
+        if (data.london) {
+          const london = JSON.parse(data.london);
+          document.getElementById("london-weather-description").innerText = london.weather[0].description;
+          document.getElementById("london-weather-text").innerText = `Temrature: ${london.main.temp}\nPressure: ${london.main.pressure}`;
+          addData('london', new Date(), london.main.temp)
+        } else {
+          document.getElementById("london-weather-description").innerText = 'ERROR';
+          document.getElementById("london-weather-text").innerText = 'ERROR'
+        }
+      })
+    </script>
+  <body>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous" type="text/javascript"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous" type="text/javascript"></script>
+  </body>
+</html>
