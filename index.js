@@ -83,7 +83,7 @@ const req = call => {
       if (err.message !== 'socket hang up')
         fs.appendFile(
           path.join(__dirname, 'req.log'),
-          `${Date.now()} Kiev ${err.message}\n`,
+          `${Date.now()} London ${err.message}\n`,
           err => err && console.error(err)
         );
       console.log(err.message);
