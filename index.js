@@ -19,9 +19,11 @@ io.on('connection', socket => {
   req(curr => {data = curr;});
   socket.on('disconnect', () => console.log('user disconnected'));
   setInterval(() => {
-    io.emit('weather', data)
     req(curr => {data = curr;})
-  }, 2000)
+  }, 2000);
+  setInterval(() => {
+    io.emit('weather', data)
+  }, 1000);
 });
 
 const req = call => {

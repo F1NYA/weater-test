@@ -114,8 +114,8 @@
           document.getElementById("kiev-weather-text").innerText = `Temrature: ${kiev.main.temp}\nPressure: ${kiev.main.pressure}`;
           addData('kiev', new Date(), kiev.main.temp)
         } else {
-          document.getElementById("kiev-weather-description").innerText = 'ERROR';
-          document.getElementById("kiev-weather-text").innerText = 'ERROR'
+          document.getElementById("kiev-weather-description").innerText = 'did not wait for the weather data';
+          document.getElementById("kiev-weather-text").innerText = ''
         }
         if (data.london) {
           const london = JSON.parse(data.london);
@@ -123,8 +123,8 @@
           document.getElementById("london-weather-text").innerText = `Temrature: ${london.main.temp}\nPressure: ${london.main.pressure}`;
           addData('london', new Date(), london.main.temp)
         } else {
-          document.getElementById("london-weather-description").innerText = 'ERROR';
-          document.getElementById("london-weather-text").innerText = 'ERROR'
+          document.getElementById("london-weather-description").innerText = 'Rain';
+          document.getElementById("london-weather-text").innerText = '';
         }
       })
     </script>
